@@ -1,0 +1,218 @@
+<%= form_for @order, html: { autocomplete: 'off', id: 'checkout_form' } do |f| %>
+  <div class='row'>
+    <div class='col col-md-6'>
+      <%= hidden_field_tag :total_items, @order.total_items %>
+      <%= hidden_field_tag :total_price, @order.total_price %>
+      <div class='row'>
+        <div class='col col-sm-12'>
+          <h5>Detail Order</h5>
+          <hr />
+            <table class='table table-bordered'>
+              <tbody>
+                <% @order.order_items.each.with_index do |order_item| %>
+                  <tr>
+                    <td><%= order_item.name %></td>
+                    <td><%= to_rupiah(order_item.price) %> X <%= order_item.quantity %></td>
+                    <td><%= to_rupiah(order_item.total_price) %></td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+        </div>
+      </div>
+      <br />
+      <div class='row'>
+        <div class='col col-sm-12'>
+          <h5>Shipment</h5>
+          <hr />
+          <div class='form-group'>
+            <%= f.label :shipping_vendor, class: 'label-control' %>
+            <%= f.select :shipping_vendor, SHIPPING_VENDORS.map{|s| s[:name]}, {include_blank: true}, class: 'form-control' %>
+          </div>
+          <%= f.fields_for :address, @order.address do |fa| %>
+            <div class='form-group'>
+              <%= fa.label :province, class: 'label-control' %>
+              <%= fa.select :province, [''].concat(PROVINCES), {}, class: 'form-control' %>
+            </div>
+            <div class='form-group'>
+              <%= fa.label :city, class: 'label-control' %>
+              <%= fa.select :city, get_regencies_options(@order), {}, class: 'form-control', disabled: @order.address.province.blank? %>
+            </div>
+            <div class='form-group'>
+              <%= fa.label :subdistrict, class: 'label-control' %>
+              <%= fa.select :subdistrict, get_districts_options(@order), {}, class: 'form-control', disabled: @order.address.city.blank? %>
+            </div>
+            <div class='form-group'>
+              <%= fa.label :contact, class: 'label-control' %>
+              <%= fa.text_field :contact, class: 'form-control' %>
+            </div>
+            <div class='form-group'>
+              <%= fa.label :detail, class: 'label-control' %>
+              <%= fa.text_area :detail, class: 'form-control' %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+    <div class='col col-md-6'>
+      <div class='row'>
+        <div class='col col-xs-12'>
+          <h5>Summary</h5>
+          <hr />
+          <table class="table table-bordered">
+            <tbody>
+              <tr>
+                <td colspan="2">Total</td>
+                <td><%= to_rupiah(@order.total_price) %></td>
+              </tr>
+              <tr>
+                <td colspan="2">Shipping Costs</td>
+                <td id="js-shipping-price"><%= to_rupiah(@order.shipping_price) %></td>
+              </tr>
+              <tr>
+                <td colspan="2">Grand Total</td>
+                <td  id="js-grand-total"><%= to_rupiah(@order.grand_total) %></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <br />
+      <div class='row'>
+        <div class='col col-xs-12'>
+          <h5>Payment</h5>
+          <hr />
+          <label>Credit Card / Debit Card</label>
+          <div id='js-card-element'></div>
+          <div id='js-card-errors' style="color: #dc3545"></div>
+          <br />
+          <%= f.submit 'Pay', class: "btn btn-success btn-block" %>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %>
+
+<%= javascript_tag do %>
+
+  function onReady() {
+    var shipping_vendors = <%= SHIPPING_VENDORS.to_json.html_safe %>
+    var regencies = <%= REGENCIES.to_json.html_safe %>
+    var districts = <%= DISTRICTS.to_json.html_safe %>
+
+    $("#order_address_attributes_province").on('change', function(){
+      regencies_options = [''].concat(regencies[$(this).val()])
+      $("#order_address_attributes_city").html(null)
+      $("#order_address_attributes_city").prop("disabled", false)
+      $("#order_address_attributes_subdistrict").html(null)
+      $("#order_address_attributes_subdistrict").prop("disabled", true)
+
+      if($(this).val() == ""){
+        $("#order_address_attributes_city").prop("disabled", true)
+      }
+
+      $.each(regencies_options, function(index, ro){
+        $("#order_address_attributes_city").append("<option>" + ro + "</option>")
+      })
+    })
+
+    $("#order_address_attributes_city").on('change', function(){
+      districts_options = [''].concat(districts[$(this).val()])
+      $("#order_address_attributes_subdistrict").html(null)
+      $("#order_address_attributes_subdistrict").prop("disabled", false)
+      $.each(districts_options, function(index, ro){
+        $("#order_address_attributes_subdistrict").append("<option>" + ro + "</option>")
+      })
+    })
+
+    $("#order_shipping_vendor").on('change', function(){
+      var value = $(this).val()
+      var shipping_vendor = shipping_vendors.find(function(xx) {
+        return xx['name'] == value
+      })
+      var shipping_price = shipping_vendor['base_price']
+      var total_price = Number($("#total_price").val())
+
+      var grand_total_price = formatter.format(total_price + shipping_price)
+      shipping_price = formatter.format(shipping_price)
+
+      $("#js-shipping-price").html(shipping_price)
+      $("#js-grand-total").html(grand_total_price)
+    })
+
+    // Create a Stripe client.
+    var stripe = Stripe('pk_test_dpJ2v9CWGHjKPUy5lnKo7Bn000JK3XcmAG');
+
+    // Create an instance of Elements.
+    var elements = stripe.elements();
+
+    // Custom styling can be passed to options when creating an Element.
+    // (Note that this demo uses a wider set of styles than the guide below.)
+    var style = {
+      base: {
+        color: '#32325d',
+        fontFamily: '"Helvetica Neue", Helvetica, sans-serif',
+        fontSmoothing: 'antialiased',
+        fontSize: '16px',
+        '::placeholder': {
+          color: '#aab7c4'
+        }
+      },
+      invalid: {
+        color: '#fa755a',
+        iconColor: '#fa755a'
+      }
+    };
+
+    // Create an instance of the card Element.
+    var card = elements.create('card', {style: style});
+
+    // Add an instance of the card Element into the `card-element` <div>.
+    card.mount('#js-card-element');
+
+    // Handle real-time validation errors from the card Element.
+    card.addEventListener('change', function(event) {
+      var displayError = document.getElementById('js-card-errors');
+      if (event.error) {
+        displayError.textContent = event.error.message;
+      } else {
+        displayError.textContent = '';
+
+      }
+    });
+
+    // Handle form submission.
+    var form = document.getElementById('checkout_form');
+    form.addEventListener('submit', function(event) {
+      event.preventDefault();
+
+      stripe.createToken(card).then(function(result) {
+        if (result.error) {
+          // Inform the user if there was an error.
+          var errorElement = document.getElementById('js-card-errors');
+          errorElement.textContent = result.error.message;
+        } else {
+          // Send the token to your server.
+          stripeTokenHandler(result.token);
+        }
+      });
+    });
+
+    // Submit the form with the token ID.
+    function stripeTokenHandler(token) {
+      // Insert the token ID into the form so it gets submitted to the server
+      var form = document.getElementById('checkout_form');
+      var hiddenInput = document.createElement('input');
+      hiddenInput.setAttribute('type', 'hidden');
+      hiddenInput.setAttribute('name', 'stripeToken');
+      hiddenInput.setAttribute('value', token.id);
+      form.appendChild(hiddenInput);
+
+      // Submit the form
+      form.submit();
+    }
+  }
+
+  $(document).on('ready', onReady)
+  $(document).on('turbolinks:load', onReady)
+<% end %>

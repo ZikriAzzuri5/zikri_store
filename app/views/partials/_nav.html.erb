@@ -1,0 +1,26 @@
+<nav class="navbar navbar-expand-lg navbar-light bg-light sticky-top">
+  <a class="navbar-brand" href="http://localhost:3000/">&sect; Azzuri Store</a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  <div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <ul class="navbar-nav mr-auto">
+      <li class="nav-item">
+      </li>
+    </ul>
+    <div class="my-2 my-lg-0">
+      <%= link_to "Cart (#{@cart.total_items})", cart_path, class: 'btn btn-link btn-sm', id: 'js-cart-button' %>
+      <% if current_user %>
+        <%= link_to "My Orders", orders_path, class: 'btn btn-link btn-sm', id: 'js-cart-button' %>
+        &middot;&nbsp;&nbsp;&nbsp;
+        Hi, <strong><%= current_user.name.split(" ").first %></strong>
+        &nbsp;&nbsp;&nbsp;&middot;
+        <%= link_to "Log Out", logout_path, class: 'btn btn-link btn-sm' %>
+      <% else %>
+        <%= link_to "Sign Up", signup_path, class: 'btn btn-primary btn-sm' %>
+        <%= link_to "Log In", login_path, class: 'btn btn-success btn-sm' %>
+      <% end %>
+    </div>
+  </div>
+</nav>

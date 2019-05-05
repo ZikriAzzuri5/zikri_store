@@ -1,0 +1,19 @@
+<%= link_to "Add a New category", new_category_path, class: 'btn btn-success' %>
+<hr />
+<table class='table table-bordered'>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th colspan="2">Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @categories.each do |category| %>
+      <tr>
+        <td><%= link_to category.category, products_path(q: {category_id_eq: category.id}) %></td>
+        <td><%= button_to 'Edit', edit_category_path(category), class: 'btn btn-info', method: 'get'%></td>
+        <td><%= button_to 'Remove', category_path(category), class: 'btn btn-danger', method: 'delete', data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

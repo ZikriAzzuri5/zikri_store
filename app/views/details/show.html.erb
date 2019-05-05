@@ -1,0 +1,54 @@
+<div class="input-group mb-3">
+  <div class="input-group-prepend">
+    <span class="input-group-text" id="inputGroup-sizing-default">Address</span>
+  </div>
+  <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-default">
+</div>
+<div class="input-group mb-3">
+  <div class="input-group-prepend">
+    <span class="input-group-text" id="inputGroup-sizing-default">Receiver Name</span>
+  </div>
+  <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-default">
+</div>
+<div class="input-group mb-3">
+  <div class="input-group-prepend">
+    <span class="input-group-text" id="inputGroup-sizing-default">Phone Number</span>
+  </div>
+  <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-default">
+</div>
+<div>
+  <select class="custom-select d-block w-100" id="Province" required="">
+    <option value="">Choose Province</option>
+    <option>United States</option>
+  </select>
+</div>
+<div>
+  <select class="custom-select d-block w-100" id="City" required="">
+    <option value="">Choose City</option>
+    <option>California</option>
+  </select>
+</div>
+<div>
+  <select class="custom-select d-block w-100" id="Kecamatan" required="">
+    <option value="">Choose Kecamatan</option>
+    <option>California</option>
+  </select>
+</div>
+<hr class="mb-4">
+<h4 class="mb-3">Payment</h4>
+<div class="d-block my-3">
+  <div class="custom-control custom-radio">
+    <input id="BCA" name="paymentMethod" type="radio" class="custom-control-input" checked="" required="">
+    <label class="custom-control-label" for="BCA">BCA</label>
+  </div>
+   <div class="custom-control custom-radio">
+      <input id="BRI" name="paymentMethod" type="radio" class="custom-control-input" required="">
+      <label class="custom-control-label" for="BRI">BRI</label>
+  </div>
+  <div class="custom-control custom-radio">
+    <input id="BNI" name="paymentMethod" type="radio" class="custom-control-input" required="">
+    <label class="custom-control-label" for="BNI">BNI</label>
+  </div>
+</div>
+<hr class="mb-4">
+<button class="btn btn-primary btn-lg btn-block" type="submit">Continue to checkout</button>

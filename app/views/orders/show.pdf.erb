@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <%= wicked_pdf_stylesheet_link_tag "application" -%>
+</head>
+<body>
+  <h1>Order #<%= @order.id %></h1>
+  <br />
+  <div class='row'>
+    <div class='col col-xs-12'>
+      <h5>Summary</h5>
+      <hr />
+      <table class="table table-bordered">
+        <tbody>
+          <tr>
+            <td colspan="2">Full Name</td>
+            <td><%= @order.user.name %></td>
+          </tr>
+          <tr>
+            <td colspan="2">Address</td>
+            <td><%= @order.full_address %></td>
+          </tr>
+          <tr>
+            <td colspan="2">Contact</td>
+            <td><%= @order.address.contact %></td>
+          </tr>
+          <tr>
+            <td colspan="2">Shipping</td>
+            <td><%= @order.shipping_vendor %> (<%= @order.shipping_number %>)</td>
+          </tr>
+          <tr>
+            <td colspan="2">Total</td>
+            <td><%= to_rupiah(@order.total_price) %></td>
+          </tr>
+          <tr>
+            <td colspan="2">Shipping Costs</td>
+            <td><%= to_rupiah(@order.shipping_price) %></td>
+          </tr>
+          <tr>
+            <td colspan="2">Grand Total</td>
+            <td><%= to_rupiah(@order.grand_total) %></td>
+          </tr>
+          <tr>
+            <td colspan="2">Payment Status</td>
+            <td><%= to_rupiah(@order.payment_status) %></td>
+          </tr>
+          <tr>
+            <td colspan="2">Order Status</td>
+            <td><%= to_rupiah(@order.order_status) %></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <br />
+  <div class='row'>
+    <div class='col col-sm-12'>
+      <h5>Detail Order</h5>
+      <hr />
+        <table class='table table-bordered'>
+          <tbody>
+            <% @order.order_items.each.with_index do |order_item| %>
+              <tr>
+                <td><%= order_item.name %></td>
+                <td><%= to_rupiah(order_item.price) %> X <%= order_item.quantity %></td>
+                <td><%= to_rupiah(order_item.total_price) %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+    </div>
+  </div>
+</body>
+</html>

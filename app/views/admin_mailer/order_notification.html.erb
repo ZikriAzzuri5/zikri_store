@@ -1,0 +1,39 @@
+<h1>New Order <%= link_to "##{@order.id}", order_url(@order) %></h1>
+<h5>From : <%= @order.user.name %></h5>
+<h5>Shipping Vendor : <%= @order.shipping_vendor %></h5>
+<h5>Shipping Address : <%= @order.full_address %></h5>
+<h5>Status : <%= @order.status %></h5>
+<table border='true'>
+  <thead>
+    <tr>
+      <th>No</th>
+      <th>Product</th>
+      <th>Price X Qty</th>
+      <th>Total</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @order.order_items.each.with_index do |item, index| %>
+      <tr>
+        <td><%= index + 1 %></td>
+        <td><%= item.name %></td>
+        <td><%= to_rupiah(item.price) %> X <%= item.quantity %></td>
+        <td><%= to_rupiah(item.total_price) %></td>
+      </tr>
+    <% end %>
+  </tbody>
+  <tfoot>
+    <tr>
+      <td colspan="3">Total</td>
+      <td><%= to_rupiah(@order.total_price) %></td>
+    </tr>
+    <tr>
+      <td colspan="3">Shipping Price</td>
+      <td><%= to_rupiah(@order.shipping_price) %></td>
+    </tr>
+    <tr>
+      <td colspan="3">Grand Total</td>
+      <td><%= to_rupiah(@order.grand_total) %></td>
+    </tr>
+  </tfoot>
+</table>

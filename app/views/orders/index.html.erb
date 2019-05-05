@@ -1,0 +1,90 @@
+<hr />
+<h5> Search </h5>
+<br>
+<%= search_form_for @q, html: { autocomplete: 'off' }  do |f| %>
+  <div class='row'>
+    <div class='col-3'>
+      <div class='form-group'>
+        <label class='control-label'>User's Name</label>
+        <%= f.search_field :user_name_cont , class: 'form-control', placeholder: 'Name Keyword' %>
+      </div>
+    </div>
+    <div class='col-3'>
+      <div class='form-group'>
+        <label class='control-label'>Payment Status</label>
+        <%= f.search_field :payment_status_cont , class: 'form-control', placeholder: 'Name Keyword' %>
+      </div>
+    </div>
+    <div class='col-3'>
+      <div class='form-group'>
+        <label class='control-label'>Order Status</label>
+        <%= f.search_field :status_cont , class: 'form-control', placeholder: 'Name Keyword' %>
+      </div>
+    </div>
+    <div class='col-3'>
+      <div class='form-group'>
+        <label class='control-label'>Date Start</label>
+        <%= f.search_field :created_at_gteq, class: 'form-control', placeholder: 'Order Start Date', type: 'date', value: @q.created_at_gteq.try(:strftime, "%Y-%m-%d") %>
+      </div>
+    </div>
+    <div class='col-3'>
+      <div class='form-group'>
+        <label class='control-label'>Date End</label>
+        <%= f.search_field :created_at_end_of_day_lteq, class: 'form-control', placeholder: 'Order End Date', type: 'date', value: @q.created_at_end_of_day_lteq.try(:strftime, "%Y-%m-%d") %>
+      </div>
+    </div>
+  </div>
+  <%= f.submit 'Search', class: 'btn btn-info' %>
+  <%= link_to 'Show as PDF', orders_path(q: params[:q].try(:permit!), format: :pdf), class: 'btn btn-link' %>
+<% end %>
+<hr />
+<table class="table table-bordered table-striped">
+  <thead>
+    <tr>
+      <th width="5">Id</th>
+      <% if current_user.is_admin? %>
+        <th>Name</th>
+      <% else %>
+        <th>Shipping Number</th>
+      <% end %>
+      <th>Shipping</th>
+      <th>Grand Total</th>
+      <th>Payment Status</th>
+      <th>Order Status</th>
+      <th>Ordered At</th>
+      <th width="5%"></th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @orders.each.with_index do |order, index| %>
+      <tr>
+        <td><%= order.id %></td>
+        <% if current_user.is_admin? %>
+          <td><%= order.user.name %></td>
+        <% else %>
+          <td><%= order.shipping_number %></td>
+        <% end %>
+        <td><%= to_rupiah(order.shipping_price) %> (<%= order.shipping_vendor %>)</td>
+        <td><%= to_rupiah(order.grand_total) %></td>
+        <td><%= order.payment_status %></td>
+        <td><%= order.status %></td>
+        <td><%= order.created_at.strftime("%d %b '%y") %></td>
+        <td>
+          <div class="dropdown">
+            <button class="btn btn-link dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            </button>
+            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+              <% if order.is_payment_failed? %>
+                <%= link_to 'View', checkout_order_path(order), class: 'dropdown-item' %>
+              <% else %>
+                <%= link_to 'View', order_path(order), class: 'dropdown-item' %>
+              <% end %>
+              <%= link_to 'Show as PDF', order_path(order, format: :pdf), class: 'dropdown-item', target: '_blank' %>
+            </div>
+          </div>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+<%= paginate @orders %>

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <%= wicked_pdf_stylesheet_link_tag "application" -%>
+  </head>
+  <body>
+    <h1>Summary from <%= @q.created_at_gteq.try(:strftime, "%Y-%m-%d") %> to <%= @q.created_at_end_of_day_lteq.try(:strftime, "%Y-%m-%d") %></h1>
+    <br />
+    <div class='row'>
+      <div class='col col-xs-12'>
+        <table class="table table-bordered table-striped">
+          <thead>
+            <tr>
+              <th width="5">Id</th>
+              <th>Name</th>
+              <th>Shipping</th>
+              <th>Grand Total</th>
+              <th>Payment Status</th>
+              <th>Order Status</th>
+              <th>Ordered At</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @orders.each.with_index do |order, index| %>
+              <tr>
+                <td><%= order.id %></td>
+                <td><%= order.user.name %></td>
+                <td><%= to_rupiah(order.shipping_price) %> (<%= order.shipping_vendor %>)</td>
+                <td><%= to_rupiah(order.grand_total) %></td>
+                <td><%= order.payment_status %></td>
+                <td><%= order.status %></td>
+                <td><%= order.created_at.strftime("%d %b '%y") %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+        <h5>Total Order : <%= @orders.count %></h5>
+        <h5>Success Payment Grand Total : <%= to_rupiah(@orders.select{|o| !o.is_payment_failed?}.sum(&:grand_total)) %></h5>
+        <h5>Grand Total : <%= to_rupiah(@orders.sum(&:grand_total)) %></h5>
+      </div>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,8 @@
+<%= form_tag send_password_confirmations_path, class: 'form-signin' do %>
+  <h1 style='text-align: center;'>&sect; Azzuri Store</h1>
+  <hr />
+  <h1 class="h3 mb-3 font-weight-normal" style='text-align: center;'>Forgot Password</h1>
+  <%= text_field_tag :email, nil, placeholder: 'Email', class: 'form-control' %>
+  <div class="checkbox mb-3"><%= link_to 'Login', new_session_path %></div>
+  <button class="btn btn-lg btn-primary btn-block" type="submit">Send Confirmation</button>
+<% end %>
